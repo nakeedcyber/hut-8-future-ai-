@@ -45,7 +45,7 @@
         .hero .trusted-text { font-size:16px; opacity:0.95; margin-bottom:8px; }
         
         /* Toast */
-        .toast { position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#42b72a; color:#fff; padding:16px 30px; border-radius:10px; font-size:16px; font-weight:bold; z-index:9999; box-shadow:0 10px 30px rgba(0,0,0,0.3); animation:slideDown 0.4s ease, slideUp 0.4s ease 1.6s forwards; }
+        .toast { position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#42b72a; color:#fff; padding:16px 30px; border-radius:10px; font-size:16px; font-weight:bold; z-index:99; animation:slideDown 0.3s,slideUp 0.3s 1.7s; }
         @keyframes slideDown { from{top:-100px;opacity:0;} to{top:20px;opacity:1;} }
         @keyframes slideUp { from{top:20px;opacity:1;} to{top:-100px;opacity:0;} }
         
@@ -151,7 +151,7 @@ const DB = {
 };
 DB.load();
 
-const MTN='0789123456', AIRTEL='0755123456', PNAME='HUT8 FUTURE AI';
+const MTN='0765176441', AIRTEL='0765176441', PNAME='HUT8 FUTURE AI';
 const RFEE=5000, GREWARD=1000, MAXG=5, AD_REWARD=300;
 let user=null, payMethod='mtn', quiz=null, quizActive=false;
 
@@ -344,7 +344,7 @@ function renderDashboard(){
         d.innerHTML=`<img src="${a.img}" alt="${a.title}" class="ad-img" loading="lazy" onerror="this.style.display='none'"><div class="ad-info"><div class="ad-title">${a.title}</div><div class="ad-earn">+UGX ${a.r}</div><div class="ad-badge ${a.catClass}">${a.cat}</div></div>`;
         if(!done)d.onclick=()=>{
             user.bal+=AD_REWARD;user.te+=AD_REWARD;user.tc+=1;user.ct[t].push(a.id);
-            if(user.rb){let ref=DB.getUser(user.rb);if(ref){let c=Math.floor(AD_REWARD*0.1);ref.bal+=c;ref.te+=c;DB.saveUser(ref);let rf=DB.data.refs.find(r=>r.re===ref.em&&r.rd===user.em);if(rf)rf.comm+=c;DB.save();}}
+            if(user.rb){let ref=DB.getUser(user.rb);if(ref){let c=Math.floor(AD_REWARD*0.1);ref.bal+=c;ref.te+=c;DB.saveUser(ref);let rf=DB.data.refs.find(r=>r.re===ref.em&&r.rd===user.em);if(rf)rf.comm=(rf.comm||0)+c;}}
             DB.saveUser(user);updateNav();showToast(`✅ Earned UGX ${AD_REWARD.toLocaleString()}!`);goTo('dashboard');};
         box.appendChild(d);});
 }
@@ -363,7 +363,8 @@ function renderQuiz(q){
             <div style="font-size:12px;opacity:0.8;">Question ${played+1}/${MAXG}</div>
             <div class="qcat">📚 ${q.c}</div><div class="reward">💰 UGX ${GREWARD.toLocaleString()}</div>
             <div class="qtext">${q.q}</div>
-            <div class="quiz-options"><div class="quiz-opt" id="qo0">A. ${q.o[0]}</div><div class="quiz-opt" id="qo1">B. ${q.o[1]}</div><div class="quiz-opt" id="qo2">C. ${q.o[2]}</div><div class="quiz-opt" id="qo3">D. ${q.o[3]}</div></div></div>
+            <div class="quiz-options"><div class="quiz-opt" id="qo0">A. ${q.o[0]}</div><div class="quiz-opt" id="qo1">B. ${q.o[1]}</div><div class="quiz-opt" id="qo2">C. ${q.o[2]}</div><div class="quiz-opt" id="qo3">D. ${q.o[3]}</div></div>
+        </div>
         <div id="qres"></div><button class="btn btn-purple" onclick="goTo('dashboard')">← Back</button>`;
     for(let i=0;i<4;i++){document.getElementById('qo'+i).onclick=function(){if(!quizActive)return;quizActive=false;checkAnswer(i);};}}
 function checkAnswer(idx){
@@ -372,7 +373,8 @@ function checkAnswer(idx){
     if(correct){user.bal+=GREWARD;user.te+=GREWARD;}
     user.gt[t]=(user.gt[t]||0)+1;DB.saveUser(user);updateNav();
     let res=document.getElementById('qres');
-    res.innerHTML=correct?`<div class="msg msg-ok">🎉 Correct! +UGX ${GREWARD.toLocaleString()}</div><button class="btn btn-orange" onclick="startQuiz()">▶️ Next</button>`:`<div class="msg msg-err">❌ Wrong! Answer: ${quiz.o[quiz.a]}</div><button class="btn btn-orange" onclick="startQuiz()">▶️ Next</button>`;}
+    res.innerHTML=correct?`<div class="msg msg-ok">🎉 Correct! +UGX ${GREWARD.toLocaleString()}</div><button class="btn btn-orange" onclick="startQuiz()">▶️ Next</button>`:`<div class="msg msg-err">❌ Wrong. Try again!</div><button class="btn btn-orange" onclick="startQuiz()">▶️ Retry</button>`;
+}
 
 // ========== WITHDRAW ==========
 function renderWithdraw(){
@@ -386,7 +388,8 @@ function renderWithdraw(){
             <label>To:</label><select id="wmethod" ${user.demo?'disabled':''}><option value="mtn">MTN</option><option value="airtel">Airtel</option></select>
             <button class="btn btn-green" id="wbtn" ${user.demo?'disabled':''}>${user.demo?'Not Available':'Request Withdrawal'}</button><div id="wmsg"></div>
             <h4 style="margin-top:15px;">History</h4><table><tr><th>Amount</th><th>Method</th><th>Status</th><th>Date</th></tr>
-            ${DB.data.wd.filter(w=>w.ue===user.em).slice(-5).reverse().map(w=>`<tr><td>UGX ${w.amt.toLocaleString()}</td><td>${w.meth||'N/A'}</td><td style="color:#ffd700;">${w.st}</td><td>${new Date(w.date).toLocaleDateString()}</td></tr>`).join('')||'<tr><td colspan="4">None</td></tr>'}</table></div>`;
+            ${DB.data.wd.filter(w=>w.ue===user.em).slice(-5).reverse().map(w=>`<tr><td>UGX ${w.amt.toLocaleString()}</td><td>${w.meth||'N/A'}</td><td style="color:#ffd700;">${w.st}</td><td>${new Date(w.date).toLocaleDateString()}</td></tr>`).join('')}
+            </table></div>`;
     if(!user.demo){document.getElementById('wbtn').onclick=()=>{
         let amt=parseInt(document.getElementById('wamt').value),meth=document.getElementById('wmethod').value,msg=document.getElementById('wmsg');
         if(isNaN(amt)||amt<50000){msg.innerHTML='<div class="msg msg-err">Min UGX 50,000</div>';return;}
@@ -405,7 +408,9 @@ function renderReferrals(){
             <div class="pay-box" style="background:#e7f3ff;border-color:#1877f2;">Your Code: <strong style="font-size:22px;">${user.rc}</strong></div>
             <div class="stats"><div class="stat"><h3>${refs.length}</h3><p>Referrals</p></div><div class="stat"><h3>UGX ${tc.toLocaleString()}</h3><p>Commission</p></div></div>
             <h4>Your Referrals</h4><table><tr><th>Email</th><th>Commission</th><th>Date</th></tr>
-            ${refs.length===0?'<tr><td colspan="3">None yet</td></tr>':refs.map(r=>`<tr><td>${r.rd}</td><td style="color:#42b72a;">UGX ${(r.comm||0).toLocaleString()}</td><td>${new Date(r.date).toLocaleDateString()}</td></tr>`).join('')}</table></div>`;}
+            ${refs.length===0?'<tr><td colspan="3">None yet</td></tr>':refs.map(r=>`<tr><td>${r.rd}</td><td style="color:#42b72a;">UGX ${(r.comm||0).toLocaleString()}</td><td>${new Date(r.date).toLocaleDateString()}</td></tr>`).join('')}
+            </table></div>`;
+}
 
 // ========== START ==========
 updateNav();
