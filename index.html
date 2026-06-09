@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hut8 Future AI</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:Arial,sans-serif; background:#f0f2f5; }
+        .top { background:#1877f2; color:#fff; padding:15px 20px; display:flex; justify-content:space-between; align-items:center; }
+        .top h2 { font-size:18px; }
+        .top button { background:none; border:1px solid #fff; color:#fff; padding:6px 15px; border-radius:4px; cursor:pointer; font-size:13px; margin-left:5px; }
+        .container { max-width:550px; margin:30px auto; padding:0 15px; }
+        .card { background:#fff; padding:25px; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.1); margin-bottom:15px; }
+        .card h2 { color:#1877f2; margin-bottom:15px; text-align:center; font-size:20px; }
+        input, select { width:100%; padding:12px; margin:6px 0; border:1px solid #ddd; border-radius:5px; font-size:15px; }
+        label { font-weight:bold; font-size:12px; color:#555; display:block; margin-top:8px; }
+        .btn { display:block; width:100%; padding:14px; border:none; border-radius:6px; font-size:16px; font-weight:bold; cursor:pointer; margin-top:12px; text-align:center; }
+        .btn-blue { background:#1877f2; color:#fff; }
+        .btn-green { background:#42b72a; color:#fff; }
+        .btn-gold { background:#ffd700; color:#000; }
+        .btn-purple { background:#6c5ce7; color:#fff; }
+        .btn-orange { background:#ff6b35; color:#fff; }
+        .btn-demo { background:#6c5ce7; color:#fff; }
+        .btn-small { display:inline-block; width:auto; padding:10px 20px; font-size:14px; }
+        .pay-box { background:#fff9d7; border:1px solid #f0c850; padding:12px; border-radius:6px; text-align:center; margin:12px 0; }
+        .pay-options { display:flex; gap:8px; margin:8px 0; }
+        .pay-opt { flex:1; padding:10px; border:2px solid #ddd; border-radius:5px; text-align:center; cursor:pointer; font-weight:bold; font-size:13px; }
+        .pay-opt.sel { border-color:#1877f2; background:#e7f3ff; }
+        .msg { padding:10px; border-radius:5px; margin:8px 0; text-align:center; font-size:14px; }
+        .msg-ok { background:#d4edda; color:#155724; }
+        .msg-err { background:#f8d7da; color:#721c24; }
+        .msg-demo { background:#e8e0ff; color:#4a3f8f; }
+        .stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+        .stat { background:#f5f6f7; padding:15px; border-radius:6px; text-align:center; }
+        .stat h3 { color:#1877f2; font-size:20px; }
+        .stat p { font-size:11px; color:#888; }
+        
+        /* Landing page counters */
+        .hero { text-align:center; padding:40px 20px; background:linear-gradient(135deg,#1877f2,#0d5bbd); color:#fff; border-radius:12px; margin-bottom:20px; }
+        .hero .counter-row { display:flex; justify-content:center; gap:30px; margin:25px 0; flex-wrap:wrap; }
+        .hero .counter-box { text-align:center; }
+        .hero .counter-number { font-size:36px; font-weight:bold; color:#ffd700; }
+        .hero .counter-label { font-size:13px; opacity:0.9; margin-top:4px; }
+        .hero .trusted-text { font-size:16px; opacity:0.95; margin-bottom:8px; }
+        
+        /* Toast */
+        .toast { position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#42b72a; color:#fff; padding:16px 30px; border-radius:10px; font-size:16px; font-weight:bold; z-index:9999; box-shadow:0 10px 30px rgba(0,0,0,0.3); animation:slideDown 0.4s ease, slideUp 0.4s ease 1.6s forwards; }
+        @keyframes slideDown { from{top:-100px;opacity:0;} to{top:20px;opacity:1;} }
+        @keyframes slideUp { from{top:20px;opacity:1;} to{top:-100px;opacity:0;} }
+        
+        .ads { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        .ad { background:#fff; border-radius:12px; overflow:hidden; cursor:pointer; border:2px solid #eee; transition:all 0.3s; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+        .ad:hover { border-color:#42b72a; transform:translateY(-4px); box-shadow:0 8px 25px rgba(0,0,0,0.15); }
+        .ad.done { opacity:0.4; pointer-events:none; filter:grayscale(0.6); }
+        .ad-img { width:100%; height:140px; object-fit:cover; display:block; }
+        .ad .ad-info { padding:14px; }
+        .ad .ad-title { font-size:14px; font-weight:bold; color:#333; margin-bottom:6px; }
+        .ad .ad-earn { color:#42b72a; font-weight:bold; font-size:16px; }
+        .ad .ad-badge { display:inline-block; padding:4px 10px; border-radius:12px; font-size:10px; font-weight:bold; margin-top:6px; text-transform:uppercase; letter-spacing:0.5px; }
+        .badge-finance { background:#e8e0ff; color:#6c5ce7; }
+        .badge-gaming { background:#ffe0e0; color:#e74c3c; }
+        .badge-education { background:#d4edda; color:#27ae60; }
+        .badge-crypto { background:#fff9d7; color:#f39c12; }
+        .badge-jobs { background:#d6eaf8; color:#2980b9; }
+        .badge-loans { background:#d1f2eb; color:#16a085; }
+        .badge-sports { background:#f5eef8; color:#8e44ad; }
+        .badge-property { background:#fce4ec; color:#c2185b; }
+        .quiz-box { background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; padding:30px; border-radius:12px; text-align:center; margin:15px 0; }
+        .quiz-box .reward { font-size:26px; font-weight:bold; color:#ffd700; }
+        .quiz-box .qtext { font-size:19px; margin:18px 0; line-height:1.4; }
+        .quiz-box .qcat { font-size:11px; color:#ffd700; text-transform:uppercase; letter-spacing:1px; }
+        .quiz-options { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:15px; }
+        .quiz-opt { padding:14px; border:2px solid #fff; border-radius:8px; cursor:pointer; font-size:15px; font-weight:bold; background:rgba(255,255,255,0.1); }
+        .quiz-opt:hover { background:rgba(255,255,255,0.3); }
+        .quiz-opt.correct { background:#42b72a; border-color:#42b72a; }
+        .quiz-opt.wrong { background:#e74c3c; border-color:#e74c3c; }
+        table { width:100%; border-collapse:collapse; }
+        td,th { padding:8px; border-bottom:1px solid #eee; text-align:left; font-size:13px; }
+        .hidden { display:none; }
+        .text-center { text-align:center; }
+        .demo-badge { background:#6c5ce7; color:#fff; padding:2px 6px; border-radius:3px; font-size:10px; margin-left:4px; }
+        .row-btns { display:flex; gap:8px; }
+        .row-btns .btn { flex:1; }
+    </style>
+</head>
+<body>
+
+<div class="top">
+    <h2>🚀 Hut8 Future AI</h2>
+    <div>
+        <button id="navLogin" onclick="goTo('login')">Login</button>
+        <button id="navRegister" onclick="goTo('register')">Register</button>
+        <span id="navUser" class="hidden"></span>
+        <button id="navLogout" class="hidden" onclick="doLogout()">Logout</button>
+    </div>
+</div>
+
+<div id="app" class="container"></div>
+
+<script>
+const DB = {
+    save(){ localStorage.setItem('h8', JSON.stringify(this.data)); },
+    load(){
+        let d = localStorage.getItem('h8');
+        this.data = d ? JSON.parse(d) : { users:{}, ads:[], wd:[], refs:[], qs:[] };
+        if(!this.data.ads.length){
+            this.data.ads=[
+                {id:1,title:'Premium Trading Platform',r:300,img:'https://picsum.photos/seed/trading/400/280',cat:'Finance',catClass:'badge-finance'},
+                {id:2,title:'Online Casino Bonus 500%',r:300,img:'https://picsum.photos/seed/casino/400/280',cat:'Gaming',catClass:'badge-gaming'},
+                {id:3,title:'Learn Forex Trading Free',r:300,img:'https://picsum.photos/seed/forex/400/280',cat:'Education',catClass:'badge-education'},
+                {id:4,title:'Crypto Investment Daily',r:300,img:'https://picsum.photos/seed/crypto/400/280',cat:'Crypto',catClass:'badge-crypto'},
+                {id:5,title:'Work From Home Jobs',r:300,img:'https://picsum.photos/seed/remotejob/400/280',cat:'Jobs',catClass:'badge-jobs'},
+                {id:6,title:'Instant Mobile Loans',r:300,img:'https://picsum.photos/seed/loan/400/280',cat:'Loans',catClass:'badge-loans'},
+                {id:7,title:'VIP Betting Tips Today',r:300,img:'https://picsum.photos/seed/betting/400/280',cat:'Sports',catClass:'badge-sports'},
+                {id:8,title:'Real Estate Investment',r:300,img:'https://picsum.photos/seed/realestate/400/280',cat:'Property',catClass:'badge-property'}
+            ];
+            this.data.qs=[
+                {q:"Capital of Uganda?",o:["Kampala","Nairobi","Dar","Kigali"],a:0,c:"Geography"},
+                {q:"Longest river?",o:["Amazon","Nile","Yangtze","Mississippi"],a:1,c:"Geography"},
+                {q:"Countries in Africa?",o:["48","54","62","36"],a:1,c:"Geography"},
+                {q:"Largest desert?",o:["Sahara","Arabian","Antarctic","Gobi"],a:2,c:"Geography"},
+                {q:"25 × 4 = ?",o:["75","100","125","150"],a:1,c:"Math"},
+                {q:"144 ÷ 12 = ?",o:["10","11","12","14"],a:2,c:"Math"},
+                {q:"Who discovered gravity?",o:["Einstein","Newton","Galileo","Darwin"],a:1,c:"Science"},
+                {q:"H2O is?",o:["Salt","Water","Sugar","Oil"],a:1,c:"Science"},
+                {q:"2022 World Cup winner?",o:["France","Brazil","Argentina","Germany"],a:2,c:"Sports"},
+                {q:"Olympic rings?",o:["3","4","5","6"],a:2,c:"Sports"},
+                {q:"Mona Lisa painter?",o:["Van Gogh","Picasso","Da Vinci","Michelangelo"],a:2,c:"General"},
+                {q:"Uganda currency?",o:["Shilling","Dollar","Pound","Euro"],a:0,c:"General"},
+                {q:"CPU stands for?",o:["Central Processing Unit","Computer Personal Unit","Central Program Utility","Core Processing Unit"],a:0,c:"Technology"},
+                {q:"Microsoft founder?",o:["Steve Jobs","Bill Gates","Jeff Bezos","Mark Zuckerberg"],a:1,c:"Technology"},
+                {q:"First iPhone year?",o:["2005","2006","2007","2008"],a:2,c:"Technology"}
+            ];
+            this.save();
+        }
+        if(!this.data.users['demo@hut8.com']){
+            this.data.users['demo@hut8.com']={
+                fn:'Demo User',em:'demo@hut8.com',ph:'0700000000',pw:'demo123',
+                rc:'DEMO2024',rb:null,paid:true,pref:'DEMO',pm:'Demo',
+                bal:25000,te:25000,tc:15,tw:0,demo:true,ll:new Date().toISOString(),
+                ca:new Date().toISOString(),ct:{},gt:{}
+            };
+            this.save();
+        }
+    },
+    data:{ users:{}, ads:[], wd:[], refs:[], qs:[] },
+    getUser(em){ return this.data.users[em]; },
+    saveUser(u){ this.data.users[u.em]=u; this.save(); },
+    randomQ(){ return [...this.data.qs].sort(()=>Math.random()-0.5)[0]; }
+};
+DB.load();
+
+const MTN='0789123456', AIRTEL='0755123456', PNAME='HUT8 FUTURE AI';
+const RFEE=5000, GREWARD=1000, MAXG=5, AD_REWARD=300;
+let user=null, payMethod='mtn', quiz=null, quizActive=false;
+
+function showToast(msg){
+    let t=document.createElement('div'); t.className='toast'; t.textContent=msg;
+    document.body.appendChild(t);
+    setTimeout(()=>t.remove(), 2000);
+}
+
+function animateCounter(el, start, end, duration){
+    let range = end - start;
+    let increment = range / (duration / 30);
+    let current = start;
+    let timer = setInterval(()=>{
+        current += increment;
+        if(current >= end){ current = end; clearInterval(timer); }
+        el.textContent = Math.floor(current).toLocaleString() + '+';
+    }, 30);
+}
+
+function updateNav(){
+    document.getElementById('navLogin').classList.toggle('hidden',!!user);
+    document.getElementById('navRegister').classList.toggle('hidden',!!user);
+    document.getElementById('navUser').classList.toggle('hidden',!user);
+    document.getElementById('navLogout').classList.toggle('hidden',!user);
+    if(user){
+        let b=user.demo?'<span class="demo-badge">DEMO</span>':'';
+        document.getElementById('navUser').innerHTML=`👤 ${user.fn}${b} | UGX ${user.bal.toLocaleString()}`;
+    }
+}
+
+function goTo(page,data){
+    quizActive=false;
+    document.getElementById('app').innerHTML='';
+    if(page==='login') renderLogin();
+    else if(page==='register') renderRegister();
+    else if(page==='dashboard') renderDashboard();
+    else if(page==='withdraw') renderWithdraw();
+    else if(page==='referrals') renderReferrals();
+    else if(page==='quiz') renderQuiz(data);
+    else if(page==='home') renderHome();
+}
+
+function doLogout(){ user=null; updateNav(); goTo('home'); }
+
+function today(){ return new Date().toISOString().split('T')[0]; }
+function ensureToday(u){
+    let t=today();
+    if(!u.ct)u.ct={}; if(!u.ct[t])u.ct[t]=[];
+    if(!u.gt)u.gt={}; if(!u.gt[t])u.gt[t]=0;
+}
+
+// ========== HOME PAGE WITH ANIMATED COUNTERS ==========
+function renderHome(){
+    document.getElementById('app').innerHTML=`
+        <div class="hero">
+            <h1 style="font-size:28px;margin-bottom:8px;">💰 Earn Money Online</h1>
+            <p style="font-size:16px;opacity:0.95;">View ads, play trivia, withdraw to MTN/Airtel</p>
+            <div class="trusted-text" style="margin-top:15px;">Trusted by over</div>
+            <div class="counter-row">
+                <div class="counter-box">
+                    <div class="counter-number" id="counter1">300+</div>
+                    <div class="counter-label">Registered Members</div>
+                </div>
+                <div class="counter-box">
+                    <div class="counter-number" id="counter2">300+</div>
+                    <div class="counter-label">Daily Active Users</div>
+                </div>
+                <div class="counter-box">
+                    <div class="counter-number" id="counter3">UGX 300+</div>
+                    <div class="counter-label">Paid Out Today</div>
+                </div>
+            </div>
+            <button class="btn btn-gold" style="max-width:300px;margin:20px auto 0;" onclick="goTo('register')">🚀 Get Started — UGX ${RFEE.toLocaleString()}</button>
+            <p style="margin-top:12px;font-size:14px;">Already a member? <a href="#" onclick="goTo('login');return false;" style="color:#ffd700;font-weight:bold;">Login</a></p>
+        </div>
+        <div class="card text-center">
+            <h3>💡 How It Works</h3>
+            <p style="margin:8px 0;">1️⃣ Register with UGX ${RFEE.toLocaleString()}</p>
+            <p style="margin:8px 0;">2️⃣ Click ads — earn UGX ${AD_REWARD} each</p>
+            <p style="margin:8px 0;">3️⃣ Play trivia — win UGX ${GREWARD.toLocaleString()}</p>
+            <p style="margin:8px 0;">4️⃣ Refer friends — earn 10% commission</p>
+            <p style="margin:8px 0;">5️⃣ Withdraw to MTN or Airtel</p>
+        </div>
+    `;
+    
+    // Animate counters
+    setTimeout(()=>{
+        animateCounter(document.getElementById('counter1'), 300, 4250, 2000);
+        animateCounter(document.getElementById('counter2'), 300, 1847, 2000);
+    }, 300);
+    
+    // UGX counter (special format)
+    setTimeout(()=>{
+        let el = document.getElementById('counter3');
+        let current = 300000;
+        let end = 4250000;
+        let range = end - current;
+        let increment = range / 60;
+        let timer = setInterval(()=>{
+            current += increment;
+            if(current >= end){ current = end; clearInterval(timer); }
+            el.textContent = 'UGX ' + Math.floor(current).toLocaleString() + '+';
+        }, 30);
+    }, 300);
+}
+
+// ========== LOGIN ==========
+function renderLogin(){
+    document.getElementById('app').innerHTML=`
+        <div class="card"><h2>🔐 Login</h2>
+            <label>Email</label><input id="lemail" placeholder="your@email.com" value="demo@hut8.com">
+            <label>Password</label><input type="password" id="lpass" placeholder="Password" value="demo123">
+            <button class="btn btn-blue" id="lbtn">Log In</button><div id="lmsg"></div>
+            <div class="text-center" style="margin:12px 0;color:#888;">— or —</div>
+            <button class="btn btn-demo" id="demobtn">🎮 Try Demo Account</button>
+            <p class="text-center" style="margin-top:15px;">No account? <a href="#" id="goreg" style="color:#1877f2;">Register</a></p></div>`;
+    document.getElementById('goreg').onclick=e=>{e.preventDefault();goTo('register');};
+    document.getElementById('lbtn').onclick=()=>{
+        let em=document.getElementById('lemail').value.trim(),pw=document.getElementById('lpass').value,msg=document.getElementById('lmsg'),u=DB.getUser(em);
+        if(!u){msg.innerHTML='<div class="msg msg-err">Account not found</div>';return;}
+        if(u.pw!==pw){msg.innerHTML='<div class="msg msg-err">Wrong password</div>';return;}
+        user=u;user.ll=new Date().toISOString();DB.saveUser(user);updateNav();
+        msg.innerHTML=(user.demo?'<div class="msg msg-demo">🎮 Demo Mode</div>':'')+'<div class="msg msg-ok">Logged in!</div>';
+        setTimeout(()=>goTo('dashboard'),400);};
+    document.getElementById('demobtn').onclick=()=>{
+        user=DB.getUser('demo@hut8.com');updateNav();
+        document.getElementById('lmsg').innerHTML='<div class="msg msg-demo">🎮 Demo Mode</div><div class="msg msg-ok">Logged in!</div>';
+        setTimeout(()=>goTo('dashboard'),400);};
+}
+
+// ========== REGISTER ==========
+function renderRegister(){
+    document.getElementById('app').innerHTML=`
+        <div class="card"><h2>📝 Create Account</h2>
+            <label>Full Name</label><input id="rname" placeholder="Your full name">
+            <label>Email</label><input id="remail" placeholder="your@email.com">
+            <label>Phone</label><input id="rphone" placeholder="07XXXXXXXX">
+            <label>Password</label><input type="password" id="rpass" placeholder="Min 6 chars">
+            <label>Referral Code (optional)</label><input id="rref" placeholder="If you have one">
+            <div class="pay-box"><strong>Fee: UGX ${RFEE.toLocaleString()}</strong><p style="margin:5px 0;">Pay via:</p>
+                <div class="pay-options">
+                    <div class="pay-opt sel" id="payM" onclick="selectPay('mtn')">📱 MTN<br><small>${MTN}</small></div>
+                    <div class="pay-opt" id="payA" onclick="selectPay('airtel')">📱 Airtel<br><small>${AIRTEL}</small></div>
+                </div><small>${PNAME}</small></div>
+            <label>Transaction Code</label><input id="rpref" placeholder="e.g., ABC123">
+            <button class="btn btn-green" id="rbtn">Register</button><div id="rmsg"></div>
+            <p class="text-center" style="margin-top:15px;">Have account? <a href="#" id="golog" style="color:#1877f2;">Login</a></p></div>`;
+    document.getElementById('golog').onclick=e=>{e.preventDefault();goTo('login');};
+    document.getElementById('rbtn').onclick=()=>{
+        let n=document.getElementById('rname').value.trim(),e=document.getElementById('remail').value.trim();
+        let p=document.getElementById('rphone').value.trim(),pw=document.getElementById('rpass').value;
+        let pr=document.getElementById('rpref').value.trim(),rc=document.getElementById('rref').value.trim(),msg=document.getElementById('rmsg');
+        if(!n||!e||!p||!pw||!pr){msg.innerHTML='<div class="msg msg-err">All fields required</div>';return;}
+        if(pw.length<6){msg.innerHTML='<div class="msg msg-err">Password too short</div>';return;}
+        if(DB.getUser(e)){msg.innerHTML='<div class="msg msg-err">Email already used</div>';return;}
+        let u={fn:n,em:e,ph:p,pw:pw,rc:Math.random().toString(36).substring(2,10).toUpperCase(),rb:null,paid:true,pref:pr,pm:payMethod==='mtn'?'MTN':'Airtel',bal:0,te:0,tc:0,tw:0,demo:false,ll:new Date().toISOString(),ca:new Date().toISOString(),ct:{},gt:{}};
+        if(rc){let ref=Object.values(DB.data.users).find(x=>x.rc===rc);if(ref){u.rb=ref.em;DB.data.refs.push({re:ref.em,rd:e,comm:0,date:new Date().toISOString()});DB.save();}}
+        DB.saveUser(u);msg.innerHTML='<div class="msg msg-ok">✅ Created! Login now.</div>';setTimeout(()=>goTo('login'),1500);};
+}
+function selectPay(m){payMethod=m;document.getElementById('payM').classList.toggle('sel',m==='mtn');document.getElementById('payA').classList.toggle('sel',m==='airtel');}
+
+// ========== DASHBOARD ==========
+function renderDashboard(){
+    if(!user){goTo('login');return;}
+    ensureToday(user);
+    let t=today(),tc=user.ct[t].length,tg=user.gt[t],refs=DB.data.refs.filter(r=>r.re===user.em);
+    let banner=user.demo?'<div class="msg msg-demo">🎮 DEMO MODE</div>':'';
+    document.getElementById('app').innerHTML=`
+        ${banner}
+        <div class="card"><h2>Welcome, ${user.fn}! ${user.demo?'<span class="demo-badge">DEMO</span>':''}</h2>
+            <div class="stats" style="margin-bottom:12px;">
+                <div class="stat"><h3>UGX ${user.bal.toLocaleString()}</h3><p>Balance</p></div>
+                <div class="stat"><h3>UGX ${user.te.toLocaleString()}</h3><p>Earned</p></div>
+                <div class="stat"><h3>${tc}/10</h3><p>Ads Today</p></div>
+                <div class="stat"><h3>${tg}/${MAXG}</h3><p>Games Today</p></div></div>
+            <div class="row-btns">
+                <button class="btn btn-gold btn-small" onclick="goTo('withdraw')">💸 Withdraw</button>
+                <button class="btn btn-blue btn-small" onclick="goTo('referrals')">👥 Refs (${refs.length})</button>
+                <button class="btn btn-orange btn-small" onclick="startQuiz()">🎯 Trivia</button></div></div>
+        <div class="card"><h3>💰 View Ads — Earn UGX ${AD_REWARD} each</h3>
+            <p style="color:#888;font-size:13px;margin-bottom:12px;text-align:center;">Click any ad • ${tc}/10 today</p>
+            <div class="ads" id="adsBox"></div>
+            ${tc>=10?'<p style="color:#e74c3c;text-align:center;margin-top:12px;">✅ Limit reached</p>':''}</div>`;
+    let box=document.getElementById('adsBox');
+    DB.data.ads.forEach(a=>{
+        let done=tc>=10||user.ct[t].includes(a.id);
+        let d=document.createElement('div');
+        d.className='ad'+(done?' done':'');
+        d.innerHTML=`<img src="${a.img}" alt="${a.title}" class="ad-img" loading="lazy" onerror="this.style.display='none'"><div class="ad-info"><div class="ad-title">${a.title}</div><div class="ad-earn">+UGX ${a.r}</div><div class="ad-badge ${a.catClass}">${a.cat}</div></div>`;
+        if(!done)d.onclick=()=>{
+            user.bal+=AD_REWARD;user.te+=AD_REWARD;user.tc+=1;user.ct[t].push(a.id);
+            if(user.rb){let ref=DB.getUser(user.rb);if(ref){let c=Math.floor(AD_REWARD*0.1);ref.bal+=c;ref.te+=c;DB.saveUser(ref);let rf=DB.data.refs.find(r=>r.re===ref.em&&r.rd===user.em);if(rf)rf.comm+=c;DB.save();}}
+            DB.saveUser(user);updateNav();showToast(`✅ Earned UGX ${AD_REWARD.toLocaleString()}!`);goTo('dashboard');};
+        box.appendChild(d);});
+}
+
+// ========== TRIVIA ==========
+function startQuiz(){
+    if(!user){goTo('login');return;}
+    ensureToday(user);let t=today();
+    if(user.gt[t]>=MAXG){showToast('Max 5 games today!');return;}
+    goTo('quiz',DB.randomQ());}
+function renderQuiz(q){
+    if(!user||!q){goTo('dashboard');return;}
+    quiz=q;quizActive=true;ensureToday(user);let t=today(),played=user.gt[t];
+    document.getElementById('app').innerHTML=`
+        <div class="quiz-box">
+            <div style="font-size:12px;opacity:0.8;">Question ${played+1}/${MAXG}</div>
+            <div class="qcat">📚 ${q.c}</div><div class="reward">💰 UGX ${GREWARD.toLocaleString()}</div>
+            <div class="qtext">${q.q}</div>
+            <div class="quiz-options"><div class="quiz-opt" id="qo0">A. ${q.o[0]}</div><div class="quiz-opt" id="qo1">B. ${q.o[1]}</div><div class="quiz-opt" id="qo2">C. ${q.o[2]}</div><div class="quiz-opt" id="qo3">D. ${q.o[3]}</div></div></div>
+        <div id="qres"></div><button class="btn btn-purple" onclick="goTo('dashboard')">← Back</button>`;
+    for(let i=0;i<4;i++){document.getElementById('qo'+i).onclick=function(){if(!quizActive)return;quizActive=false;checkAnswer(i);};}}
+function checkAnswer(idx){
+    if(!quiz)return;let correct=idx===quiz.a,t=today();
+    for(let i=0;i<4;i++){let el=document.getElementById('qo'+i);if(!el)continue;el.style.pointerEvents='none';if(i===quiz.a)el.classList.add('correct');if(i===idx&&!correct)el.classList.add('wrong');}
+    if(correct){user.bal+=GREWARD;user.te+=GREWARD;}
+    user.gt[t]=(user.gt[t]||0)+1;DB.saveUser(user);updateNav();
+    let res=document.getElementById('qres');
+    res.innerHTML=correct?`<div class="msg msg-ok">🎉 Correct! +UGX ${GREWARD.toLocaleString()}</div><button class="btn btn-orange" onclick="startQuiz()">▶️ Next</button>`:`<div class="msg msg-err">❌ Wrong! Answer: ${quiz.o[quiz.a]}</div><button class="btn btn-orange" onclick="startQuiz()">▶️ Next</button>`;}
+
+// ========== WITHDRAW ==========
+function renderWithdraw(){
+    if(!user){goTo('login');return;}
+    document.getElementById('app').innerHTML=`
+        <div class="card"><a href="#" onclick="goTo('dashboard');return false;" style="color:#1877f2;">← Back</a><h2>💸 Withdraw</h2>
+            ${user.demo?'<div class="msg msg-demo">🎮 Demo cannot withdraw</div>':''}
+            <p class="text-center">Balance: <strong>UGX ${user.bal.toLocaleString()}</strong></p>
+            <p class="text-center" style="color:#888;font-size:13px;">Min UGX 50,000 | 10% fee | 7-14 days</p>
+            <label>Amount</label><input type="number" id="wamt" placeholder="50000" min="50000" ${user.demo?'disabled':''}>
+            <label>To:</label><select id="wmethod" ${user.demo?'disabled':''}><option value="mtn">MTN</option><option value="airtel">Airtel</option></select>
+            <button class="btn btn-green" id="wbtn" ${user.demo?'disabled':''}>${user.demo?'Not Available':'Request Withdrawal'}</button><div id="wmsg"></div>
+            <h4 style="margin-top:15px;">History</h4><table><tr><th>Amount</th><th>Method</th><th>Status</th><th>Date</th></tr>
+            ${DB.data.wd.filter(w=>w.ue===user.em).slice(-5).reverse().map(w=>`<tr><td>UGX ${w.amt.toLocaleString()}</td><td>${w.meth||'N/A'}</td><td style="color:#ffd700;">${w.st}</td><td>${new Date(w.date).toLocaleDateString()}</td></tr>`).join('')||'<tr><td colspan="4">None</td></tr>'}</table></div>`;
+    if(!user.demo){document.getElementById('wbtn').onclick=()=>{
+        let amt=parseInt(document.getElementById('wamt').value),meth=document.getElementById('wmethod').value,msg=document.getElementById('wmsg');
+        if(isNaN(amt)||amt<50000){msg.innerHTML='<div class="msg msg-err">Min UGX 50,000</div>';return;}
+        if(amt>user.bal){msg.innerHTML='<div class="msg msg-err">Insufficient balance</div>';return;}
+        if(user.tc<50){msg.innerHTML=`<div class="msg msg-err">Need 50 clicks. You have ${user.tc}</div>`;return;}
+        let fee=Math.floor(amt*0.1);user.bal-=amt;user.tw+=amt;DB.saveUser(user);
+        DB.data.wd.push({ue:user.em,amt:amt,fee:fee,net:amt-fee,meth:meth==='mtn'?'MTN':'Airtel',st:'pending',date:new Date().toISOString()});DB.save();
+        msg.innerHTML='<div class="msg msg-ok">Submitted! 7-14 days.</div>';setTimeout(()=>goTo('dashboard'),1500);};}}
+
+// ========== REFERRALS ==========
+function renderReferrals(){
+    if(!user){goTo('login');return;}
+    let refs=DB.data.refs.filter(r=>r.re===user.em),tc=refs.reduce((s,r)=>s+(r.comm||0),0);
+    document.getElementById('app').innerHTML=`
+        <div class="card"><a href="#" onclick="goTo('dashboard');return false;" style="color:#1877f2;">← Back</a><h2>👥 Referrals</h2>
+            <div class="pay-box" style="background:#e7f3ff;border-color:#1877f2;">Your Code: <strong style="font-size:22px;">${user.rc}</strong></div>
+            <div class="stats"><div class="stat"><h3>${refs.length}</h3><p>Referrals</p></div><div class="stat"><h3>UGX ${tc.toLocaleString()}</h3><p>Commission</p></div></div>
+            <h4>Your Referrals</h4><table><tr><th>Email</th><th>Commission</th><th>Date</th></tr>
+            ${refs.length===0?'<tr><td colspan="3">None yet</td></tr>':refs.map(r=>`<tr><td>${r.rd}</td><td style="color:#42b72a;">UGX ${(r.comm||0).toLocaleString()}</td><td>${new Date(r.date).toLocaleDateString()}</td></tr>`).join('')}</table></div>`;}
+
+// ========== START ==========
+updateNav();
+goTo('home');
+</script>
+</body>
+</html>
