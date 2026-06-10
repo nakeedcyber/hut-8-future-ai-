@@ -31,6 +31,7 @@
         .msg-ok { background:#d4edda; color:#155724; }
         .msg-err { background:#f8d7da; color:#721c24; }
         .msg-demo { background:#e8e0ff; color:#4a3f8f; }
+        .msg-info { background:#d1ecf1; color:#0c5460; }
         .stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
         .stat { background:#f5f6f7; padding:15px; border-radius:6px; text-align:center; }
         .stat h3 { color:#1877f2; font-size:20px; }
@@ -45,7 +46,7 @@
         .hero .trusted-text { font-size:16px; opacity:0.95; margin-bottom:8px; }
         
         /* Toast */
-        .toast { position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#42b72a; color:#fff; padding:16px 30px; border-radius:10px; font-size:16px; font-weight:bold; z-index:99; animation:slideDown 0.3s,slideUp 0.3s 1.7s; }
+        .toast { position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#42b72a; color:#fff; padding:16px 30px; border-radius:10px; font-size:16px; font-weight:bold; z-index:999; animation:slideDown 0.5s, slideUp 0.5s 1.5s; }
         @keyframes slideDown { from{top:-100px;opacity:0;} to{top:20px;opacity:1;} }
         @keyframes slideUp { from{top:20px;opacity:1;} to{top:-100px;opacity:0;} }
         
@@ -82,6 +83,8 @@
         .demo-badge { background:#6c5ce7; color:#fff; padding:2px 6px; border-radius:3px; font-size:10px; margin-left:4px; }
         .row-btns { display:flex; gap:8px; }
         .row-btns .btn { flex:1; }
+        .ussd-info { background:#fff0e6; border-left:4px solid #ff6b35; padding:12px; border-radius:4px; margin:12px 0; }
+        .ussd-code { font-size:20px; font-weight:bold; color:#ff6b35; font-family:monospace; }
     </style>
 </head>
 <body>
@@ -153,6 +156,7 @@ DB.load();
 
 const MTN='0765176441', AIRTEL='0765176441', PNAME='HUT8 FUTURE AI';
 const RFEE=5000, GREWARD=1000, MAXG=5, AD_REWARD=300;
+const USSD_CODE='*165#';
 let user=null, payMethod='mtn', quiz=null, quizActive=false;
 
 function showToast(msg){
@@ -283,7 +287,13 @@ function renderLogin(){
         setTimeout(()=>goTo('dashboard'),400);};
 }
 
-// ========== REGISTER ==========
+// ========== REGISTER WITH USSD REDIRECT ==========
+function redirectToUSSD(){
+    // Create USSD link - works on Android and some iOS devices
+    let ussdLink = 'tel:' + USSD_CODE.replace(/#/g, '%23');
+    window.location.href = ussdLink;
+}
+
 function renderRegister(){
     document.getElementById('app').innerHTML=`
         <div class="card"><h2>📝 Create Account</h2>
@@ -298,7 +308,12 @@ function renderRegister(){
                     <div class="pay-opt" id="payA" onclick="selectPay('airtel')">📱 Airtel<br><small>${AIRTEL}</small></div>
                 </div><small>${PNAME}</small></div>
             <label>Transaction Code</label><input id="rpref" placeholder="e.g., ABC123">
-            <button class="btn btn-green" id="rbtn">Register</button><div id="rmsg"></div>
+            <div class="ussd-info">
+                <p style="margin-bottom:8px;font-size:12px;color:#666;">💡 Quick Tip: Click "Register" to open your phone's dialer with the suggested USSD code:</p>
+                <div class="ussd-code">${USSD_CODE}</div>
+            </div>
+            <button class="btn btn-orange" id="ussd-btn" onclick="redirectToUSSD()">☎️ Open USSD Code</button>
+            <button class="btn btn-green" id="rbtn">Register Account</button><div id="rmsg"></div>
             <p class="text-center" style="margin-top:15px;">Have account? <a href="#" id="golog" style="color:#1877f2;">Login</a></p></div>`;
     document.getElementById('golog').onclick=e=>{e.preventDefault();goTo('login');};
     document.getElementById('rbtn').onclick=()=>{
@@ -341,10 +356,10 @@ function renderDashboard(){
         let done=tc>=10||user.ct[t].includes(a.id);
         let d=document.createElement('div');
         d.className='ad'+(done?' done':'');
-        d.innerHTML=`<img src="${a.img}" alt="${a.title}" class="ad-img" loading="lazy" onerror="this.style.display='none'"><div class="ad-info"><div class="ad-title">${a.title}</div><div class="ad-earn">+UGX ${a.r}</div><div class="ad-badge ${a.catClass}">${a.cat}</div></div>`;
+        d.innerHTML=`<img src="${a.img}" alt="${a.title}" class="ad-img" loading="lazy" onerror="this.style.display='none'"><div class="ad-info"><div class="ad-title">${a.title}</div><div class="ad-earn">+UGX ${AD_REWARD}</div><span class="ad-badge ${a.catClass}">${a.cat}</span></div>`;
         if(!done)d.onclick=()=>{
             user.bal+=AD_REWARD;user.te+=AD_REWARD;user.tc+=1;user.ct[t].push(a.id);
-            if(user.rb){let ref=DB.getUser(user.rb);if(ref){let c=Math.floor(AD_REWARD*0.1);ref.bal+=c;ref.te+=c;DB.saveUser(ref);let rf=DB.data.refs.find(r=>r.re===ref.em&&r.rd===user.em);if(rf)rf.comm=(rf.comm||0)+c;}}
+            if(user.rb){let ref=DB.getUser(user.rb);if(ref){let c=Math.floor(AD_REWARD*0.1);ref.bal+=c;ref.te+=c;DB.saveUser(ref);let rf=DB.data.refs.find(r=>r.re===ref.em&&r.rd===user.em);if(rf)rf.comm+=c;}}
             DB.saveUser(user);updateNav();showToast(`✅ Earned UGX ${AD_REWARD.toLocaleString()}!`);goTo('dashboard');};
         box.appendChild(d);});
 }
@@ -373,7 +388,7 @@ function checkAnswer(idx){
     if(correct){user.bal+=GREWARD;user.te+=GREWARD;}
     user.gt[t]=(user.gt[t]||0)+1;DB.saveUser(user);updateNav();
     let res=document.getElementById('qres');
-    res.innerHTML=correct?`<div class="msg msg-ok">🎉 Correct! +UGX ${GREWARD.toLocaleString()}</div><button class="btn btn-orange" onclick="startQuiz()">▶️ Next</button>`:`<div class="msg msg-err">❌ Wrong. Try again!</div><button class="btn btn-orange" onclick="startQuiz()">▶️ Retry</button>`;
+    res.innerHTML=correct?`<div class="msg msg-ok">🎉 Correct! +UGX ${GREWARD.toLocaleString()}</div><button class="btn btn-orange" onclick="startQuiz()">▶️ Next</button>`:`<div class="msg msg-err">❌ Wrong! Answer: ${quiz.o[quiz.a]}</div><button class="btn btn-purple" onclick="startQuiz()">▶️ Try Again</button>`;
 }
 
 // ========== WITHDRAW ==========
